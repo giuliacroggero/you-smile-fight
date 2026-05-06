@@ -1,5 +1,6 @@
 import Header from "./components/Header";
 import Hero from "./components/Hero";
+import Plans from "./components/Plans";
 import Footer from "./components/Footer";
 
 export default function Home() {
@@ -7,6 +8,7 @@ export default function Home() {
     <main className="bg-black text-white min-h-screen">
       <Header />
       <Hero />
+      <Plans />
       <Footer />
     </main>
   );

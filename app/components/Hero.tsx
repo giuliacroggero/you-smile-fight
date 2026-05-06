@@ -8,7 +8,7 @@ export default function Hero() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrent((prev) => (prev + 1) % images.length);
-    }, 3000);
+    }, 6000);
 
     return () => clearInterval(interval);
   }, []);
@@ -41,8 +41,8 @@ export default function Hero() {
           YOU SMILE FIGHT
         </h1>
 
-        <p className="text-lg mb-6 text-gray-200 tracking-wide">
-          Sweat. Smile. Repeat.
+        <p className="text-lg md:text-xl mb-6 text-gray-200 tracking-wide">
+          Funcional fight que transforma seu corpo e sua mente.
         </p>
 
         <div className="flex gap-4">
