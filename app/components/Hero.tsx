@@ -46,13 +46,14 @@ export default function Hero() {
         </p>
 
         <div className="flex gap-4">
-          <button className="bg-yellow-400 text-black px-6 py-3 rounded-lg font-semibold hover:scale-105 hover:shadow-lg transition">
-            AGENDAR AULA
-          </button>
+          <a
+              href="#treinos"
+              className="bg-yellow-400 text-black px-6 py-3 rounded-lg font-semibold hover:scale-105 hover:shadow-lg transition"
+          >
+          SAIBA MAIS
+          </a>
 
-          <button className="border border-yellow-400 px-6 py-3 rounded-lg hover:bg-yellow-400 hover:text-black hover:scale-105 transition">
-            SAIBA MAIS
-          </button>
+          
         </div>
 
       </div>

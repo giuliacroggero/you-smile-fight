@@ -35,13 +35,18 @@ export default function Footer() {
           </h3>
 
           <ul className="space-y-3">
-            {["TREINOS", "PLANOS", "RESERVAR", "SOBRE NÓS"].map((item) => (
-              <li key={item}>
+            {[
+              { label: "TREINOS", href: "#treinos" },
+              { label: "PLANOS", href: "#planos" },
+              { label: "RESERVAR", href: "/reservar" },
+              { label: "SOBRE NÓS", href: "#sobre" },
+            ].map((item) => (
+              <li key={item.label}>
                 <a
-                  href="#"
+                  href={item.href}
                   className="flex justify-between items-center hover:text-white transition"
                 >
-                  {item}
+                  {item.label}
                   <span className="text-yellow-400">›</span>
                 </a>
 
@@ -50,28 +55,54 @@ export default function Footer() {
             ))}
           </ul>
         </div>
-
         {/* LINHA DIVISÓRIA */}
         <div className="hidden md:block w-px bg-yellow-400/30"></div>
 
         {/* CONTATO */}
         <div>
-          <h3 className="text-yellow-400 font-semibold mb-4">
-            FALE CONOSCO
-          </h3>
+  <h3 className="text-yellow-400 font-semibold mb-4">
+    FALE CONOSCO
+  </h3>
 
-          <div className="space-y-4 text-sm">
+  <div className="space-y-5 text-sm">
 
-            <p>
-              📍 Rua Baluarte, 31 - Vila Olímpia <br />
-              São Paulo - SP
-            </p>
+    {/* ENDEREÇO */}
+    <div className="flex items-start gap-3">
+      <img
+        src="/location.png"
+        alt="localização"
+        className="w-4 h-4 mt-1 object-contain opacity-70"
+      />
 
-            <p>📱 (11) 93947-8819</p>
+      <p>
+        Rua Baluarte, 31 - Vila Olímpia <br />
+        São Paulo - SP
+      </p>
+    </div>
 
-            <p>📸 @yousmilefight</p>
+    {/* TELEFONE */}
+    <div className="flex items-center gap-3">
+      <img
+        src="/phone.png"
+        alt="telefone"
+        className="w-4 h-4 object-contain opacity-70"
+      />
 
-          </div>
+      <p>(11) 93947-8819</p>
+    </div>
+
+    {/* INSTAGRAM */}
+    <div className="flex items-center gap-3">
+      <img
+        src="/instagram.png"
+        alt="instagram"
+        className="w-4 h-4 object-contain opacity-70"
+      />
+
+      <p>@yousmilefight</p>
+    </div>
+
+  </div>
         </div>
 
       </div>
