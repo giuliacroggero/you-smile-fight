@@ -75,3 +75,14 @@ def get_current_user(
         raise credentials_error
 
     return user
+
+def get_current_admin(
+    current_user: User = Depends(get_current_user)
+):
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=403,
+            detail="Acesso negado. Apenas administradores."
+        )
+
+    return current_user
