@@ -57,7 +57,7 @@ export default function Treinos() {
           <div className="absolute inset-0 bg-yellow-400/10 blur-3xl rounded-full" />
 
           <img
-            src="/hero2.png"
+            src="/hero2.jpeg"
             alt="Treino funcional"
             className="relative rounded-3xl object-cover w-full h-[420px] md:h-[500px]"
           />

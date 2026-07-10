@@ -1,257 +1,195 @@
-"use client";
+const whatsappNumber = "5511939478819";
 
-import { useState } from "react";
+type TrainingOption = {
+  title: string;
+  subtitle: string;
+  description: string;
+  features: string[];
+  message: string;
+  highlight: boolean;
+};
 
-export default function Plans() {
-
-  const [planType, setPlanType] = useState("individual");
-
-  const individualPlans = [
+const trainingOptions: TrainingOption[] = [
   {
-    title: "Mensal",
-    discount: "-18% avulso",
-    duration: "1 mês",
-    classes: [
-      "4 aulas - R$180/aula",
-      "8 aulas - R$165/aula",
-      "12 aulas - R$155/aula",
-      "20 aulas - R$150/aula",
+    title: "Individual",
+    subtitle: "Treino personalizado",
+    description:
+      "Acompanhamento exclusivo, respeitando seu ritmo, objetivo e condicionamento.",
+    features: [
+      "Treino adaptado ao seu nível",
+      "Acompanhamento individual",
+      "Foco total na sua evolução",
+      "Horários sob consulta",
     ],
+    message:
+      "Olá! Tenho interesse no treino individual da You Smile Fight. Gostaria de receber mais informações.",
     highlight: false,
   },
-
   {
-    title: "Trimestral",
-    discount: "-5% de desconto",
-    duration: "3 meses",
-    classes: [
-      "4 aulas - R$171/aula",
-      "8 aulas - R$156,75/aula",
-      "12 aulas - R$147,25/aula",
-      "20 aulas - R$142,50/aula",
+    title: "Em dupla",
+    subtitle: "Evoluam juntos",
+    description:
+      "Uma experiência personalizada para quem quer treinar acompanhado.",
+    features: [
+      "Treino para duas pessoas",
+      "Orientação personalizada",
+      "Mais motivação e energia",
+      "Horários sob consulta",
     ],
+    message:
+      "Olá! Tenho interesse no treino em dupla da You Smile Fight. Gostaria de receber mais informações.",
     highlight: true,
   },
-
   {
-    title: "Semestral",
-    discount: "-10% de desconto",
-    duration: "6 meses",
-    classes: [
-      "4 aulas - R$162/aula",
-      "8 aulas - R$148,50/aula",
-      "12 aulas - R$139,50/aula",
-      "20 aulas - R$135/aula",
+    title: "Experimental",
+    subtitle: "Conheça nosso treino",
+    description:
+      "Experimente a metodologia You Smile Fight antes de escolher seu formato.",
+    features: [
+      "Conheça nossa metodologia",
+      "Treino adaptado ao seu nível",
+      "Converse com o professor",
+      "Agendamento pelo WhatsApp",
     ],
+    message:
+      "Olá! Gostaria de agendar uma aula experimental na You Smile Fight.",
     highlight: false,
   },
-
   {
-    title: "Anual",
-    discount: "-15% de desconto",
-    duration: "1 ano",
-    classes: [
-      "4 aulas - R$144/aula",
-      "8 aulas - R$132/aula",
-      "12 aulas - R$124/aula",
-      "20 aulas - R$120/aula",
+    title: "Personalizado",
+    subtitle: "Feito para sua rotina",
+    description:
+      "Nossa equipe ajuda você a encontrar a melhor frequência e formato de treino.",
+    features: [
+      "Opções conforme seu objetivo",
+      "Frequência personalizada",
+      "Atendimento direto",
+      "Condições sob consulta",
     ],
-    highlight: true,
-  },
-  ];
-
-  const duplaPlans = [
-  {
-    title: "Mensal",
-    discount: "-18% avulso",
-    duration: "1 mês",
-    classes: [
-      "4 aulas - R$250/aula",
-      "8 aulas - R$240/aula",
-      "12 aulas - R$230/aula",
-      "20 aulas - R$190/aula",
-    ],
-    highlight: false,
-  },
-
-  {
-    title: "Trimestral",
-    discount: "-5% de desconto",
-    duration: "3 meses",
-    classes: [
-      "4 aulas - R$237,50/aula",
-      "8 aulas - R$228/aula",
-      "12 aulas - R$218,50/aula",
-      "20 aulas - R$180,50/aula",
-    ],
-    highlight: true,
-  },
-
-  {
-    title: "Semestral",
-    discount: "-10% de desconto",
-    duration: "6 meses",
-    classes: [
-      "4 aulas - R$225/aula",
-      "8 aulas - R$216/aula",
-      "12 aulas - R$207/aula",
-      "20 aulas - R$171/aula",
-    ],
-    highlight: false,
-  },
-
-  {
-    title: "Anual",
-    discount: "-15% de desconto",
-    duration: "1 ano",
-    classes: [
-      "4 aulas - R$200/aula",
-      "8 aulas - R$192/aula",
-      "12 aulas - R$184/aula",
-      "20 aulas - R$160/aula",
-    ],
+    message:
+      "Olá! Gostaria de encontrar o formato de treino ideal para mim na You Smile Fight.",
     highlight: true,
   },
 ];
 
-  const currentPlans =
-  planType === "individual"
-    ? individualPlans
-    : duplaPlans;
+export default function Plans() {
+  function getWhatsAppLink(message: string) {
+    return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+      message,
+    )}`;
+  }
 
- return (
-  <section
-    id="planos"
-    className="scroll-mt-24 bg-black relative overflow-hidden text-white py-12 px-6"
-  >
-    <div className="absolute inset-0 opacity-20 pointer-events-none">
-      <div className="absolute top-20 left-20 w-72 h-72 bg-yellow-400 blur-[140px] rounded-full"></div>
-      <div className="absolute bottom-10 right-10 w-72 h-72 bg-yellow-400 blur-[140px] rounded-full"></div>
-    </div>
+  return (
+    <section
+      id="planos"
+      className="relative scroll-mt-24 overflow-hidden bg-black px-6 py-12 text-white"
+    >
+      {/* FUNDO DECORATIVO */}
+      <div className="pointer-events-none absolute inset-0 opacity-20">
+        <div className="absolute left-20 top-20 h-72 w-72 rounded-full bg-yellow-400 blur-[140px]" />
 
-    <div className="max-w-7xl mx-auto relative z-10">
-      {/* TÍTULO */}
-      <div className="text-center mb-10">
-        <p className="text-yellow-400 uppercase tracking-[0.3em] text-sm mb-3">
-          You Smile Fight
-        </p>
-
-        <h2 className="text-4xl md:text-[46px] font-bold mb-2">
-          PLANOS {planType === "individual" ? "INDIVIDUAIS" : "EM DUPLA"}
-        </h2>
-
-        <p className="text-gray-400 text-base">
-          Escolha o plano ideal para sua evolução
-        </p>
+        <div className="absolute bottom-10 right-10 h-72 w-72 rounded-full bg-yellow-400 blur-[140px]" />
       </div>
 
-      {/* BOTÕES */}
-      <div className="flex justify-center gap-4 mb-10">
-        <button
-          onClick={() => setPlanType("individual")}
-          className={`px-6 py-2.5 rounded-full border transition ${
-            planType === "individual"
-              ? "bg-yellow-400 text-black border-yellow-400"
-              : "border-gray-700 text-white hover:border-yellow-400"
-          }`}
-        >
-          Individuais
-        </button>
+      <div className="relative z-10 mx-auto max-w-7xl">
+        {/* TÍTULO */}
+        <div className="mb-10 text-center">
+          <p className="mb-3 text-sm uppercase tracking-[0.3em] text-yellow-400">
+            You Smile Fight
+          </p>
 
-        <button
-          onClick={() => setPlanType("dupla")}
-          className={`px-6 py-2.5 rounded-full border transition ${
-            planType === "dupla"
-              ? "bg-yellow-400 text-black border-yellow-400"
-              : "border-gray-700 text-white hover:border-yellow-400"
-          }`}
-        >
-          Em dupla
-        </button>
-      </div>
+          <h2 className="mb-2 text-4xl font-bold md:text-[46px]">
+            ENCONTRE O TREINO IDEAL
+          </h2>
 
-      {/* CARDS */}
-      <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-4">
-        {currentPlans.map((plan, index) => (
-          <div
-            key={index}
-            className={`relative rounded-[28px] p-5 border transition hover:-translate-y-2 duration-300 min-h-[360px] flex flex-col overflow-hidden ${
-              plan.highlight
-                ? "bg-yellow-400 text-black border-yellow-400"
-                : "bg-[#0a0a0a] border-gray-800 text-white"
-            }`}
-          >
-            {/* ARCO DECORATIVO */}
-            <div
-              className={`absolute -top-16 left-1/2 -translate-x-1/2 w-[260px] h-[130px] rounded-b-full border-b ${
-                plan.highlight ? "border-white/25" : "border-white/15"
+          <p className="mx-auto max-w-2xl text-base text-gray-400">
+            Escolha o formato que mais combina com sua rotina e fale com nossa
+            equipe para conhecer disponibilidade e condições.
+          </p>
+        </div>
+
+        {/* CARDS */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {trainingOptions.map((option) => (
+            <article
+              key={option.title}
+              className={`relative flex min-h-[390px] flex-col overflow-hidden rounded-[28px] border p-5 transition duration-300 hover:-translate-y-2 ${
+                option.highlight
+                  ? "border-yellow-400 bg-yellow-400 text-black"
+                  : "border-gray-800 bg-[#0a0a0a] text-white"
               }`}
-            />
-
-            <div className="relative z-10">
-              <h3 className="text-2xl font-bold mb-1">
-                {plan.title}
-              </h3>
-
-              <p className="text-sm opacity-70 mb-5">
-                {plan.discount}
-              </p>
-
+            >
+              {/* ARCO DECORATIVO */}
               <div
-                className={`w-full h-[1px] mb-5 ${
-                  plan.highlight ? "bg-black/30" : "bg-gray-700"
+                className={`absolute -top-16 left-1/2 h-[130px] w-[260px] -translate-x-1/2 rounded-b-full border-b ${
+                  option.highlight
+                    ? "border-white/25"
+                    : "border-white/15"
                 }`}
               />
 
-              <p className="text-lg font-semibold mb-6">
-                {plan.duration}
-              </p>
-            </div>
+              <div className="relative z-10">
+                <h3 className="mb-1 text-2xl font-bold">{option.title}</h3>
 
-            <div className="space-y-4 flex-1 relative z-10">
-              {plan.classes.map((item, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <span
-                    className={`text-base font-bold ${
-                      plan.highlight ? "text-black" : "text-yellow-400"
-                    }`}
-                  >
-                    ✓
-                  </span>
+                <p className="mb-5 text-sm opacity-70">{option.subtitle}</p>
 
-                  <span className="text-sm font-semibold">
-                    {item}
-                  </span>
-                </div>
-              ))}
-            </div>
+                <div
+                  className={`mb-5 h-px w-full ${
+                    option.highlight ? "bg-black/30" : "bg-gray-700"
+                  }`}
+                />
 
-            <button
-              className={`mt-8 py-3 rounded-2xl font-semibold text-base transition relative z-10 ${
-                plan.highlight
-                  ? "bg-black text-yellow-400 hover:opacity-80"
-                  : "bg-yellow-400 text-black hover:scale-105"
-              }`}
-            >
-              Escolher plano
-            </button>
-          </div>
-        ))}
-      </div>
+                <p
+                  className={`mb-6 min-h-[60px] text-sm leading-relaxed ${
+                    option.highlight ? "text-black/75" : "text-gray-400"
+                  }`}
+                >
+                  {option.description}
+                </p>
+              </div>
 
-      {/* OBSERVAÇÕES */}
-      <div className="mt-8 space-y-3 text-sm text-gray-300 max-w-5xl mx-auto">
-        <p>
-          <span className="text-yellow-400 font-bold">✓</span>{" "}
-          Cancelamentos ou remarcações devem ser informados com no mínimo 4h de antecedência.
+              {/* BENEFÍCIOS */}
+              <div className="relative z-10 flex-1 space-y-4">
+                {option.features.map((feature) => (
+                  <div key={feature} className="flex items-start gap-3">
+                    <span
+                      className={`font-bold ${
+                        option.highlight
+                          ? "text-black"
+                          : "text-yellow-400"
+                      }`}
+                    >
+                      ✓
+                    </span>
+
+                    <span className="text-sm font-semibold">{feature}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* BOTÃO */}
+              <a
+                href={getWhatsAppLink(option.message)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`relative z-10 mt-8 block rounded-2xl py-3 text-center text-base font-semibold transition ${
+                  option.highlight
+                    ? "bg-black text-yellow-400 hover:opacity-80"
+                    : "bg-yellow-400 text-black hover:scale-105"
+                }`}
+              >
+                Falar com a equipe
+              </a>
+            </article>
+          ))}
+        </div>
+
+        {/* INFORMAÇÃO FINAL */}
+        <p className="mt-8 text-center text-sm text-gray-500">
+          Valores, disponibilidade e condições são informados diretamente pela
+          nossa equipe.
         </p>
-
-        <p>
-          <span className="text-yellow-400 font-bold">✓</span>{" "}
-          Em casos de viagem, imprevistos ou necessidade de pausa, o plano poderá ser congelado mediante aviso prévio.
-        </p>
       </div>
-    </div>
-  </section>
+    </section>
   );
 }
