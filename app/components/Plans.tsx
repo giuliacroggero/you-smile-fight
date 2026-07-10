@@ -55,21 +55,6 @@ const trainingOptions: TrainingOption[] = [
       "Olá! Gostaria de agendar uma aula experimental na You Smile Fight.",
     highlight: false,
   },
-  {
-    title: "Personalizado",
-    subtitle: "Feito para sua rotina",
-    description:
-      "Nossa equipe ajuda você a encontrar a melhor frequência e formato de treino.",
-    features: [
-      "Opções conforme seu objetivo",
-      "Frequência personalizada",
-      "Atendimento direto",
-      "Condições sob consulta",
-    ],
-    message:
-      "Olá! Gostaria de encontrar o formato de treino ideal para mim na You Smile Fight.",
-    highlight: true,
-  },
 ];
 
 export default function Plans() {

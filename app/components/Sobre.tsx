@@ -83,7 +83,7 @@ export default function Sobre() {
         </p>
 
         <h2 className="text-4xl md:text-5xl font-bold mb-3">
-          Professores You Fight
+          Professores You Smile Fight
         </h2>
 
         <p className="text-gray-400 text-base max-w-2xl mx-auto">
