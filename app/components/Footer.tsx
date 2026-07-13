@@ -99,7 +99,7 @@ export default function Footer() {
                 className="h-4 w-4 object-contain opacity-70"
               />
 
-              <span>(11) 93947-8819</span>
+              <span>(11) 93947-8812</span>
             </a>
 
             {/* INSTAGRAM */}

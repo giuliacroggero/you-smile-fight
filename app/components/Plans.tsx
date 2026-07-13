@@ -1,4 +1,4 @@
-const whatsappNumber = "5511939478819";
+const whatsappNumber = "5511939478812";
 
 type TrainingOption = {
   title: string;
