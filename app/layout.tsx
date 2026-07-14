@@ -22,7 +22,16 @@ export const metadata: Metadata = {
   },
 
   description:
-    "Studio de Funcional Fight em São Paulo, com treinos que combinam funcional, Muay Thai e Boxe. Conheça os planos e agende sua aula.",
+    "Studio boutique na Vila Olímpia com treinos de Funcional Fight, Boxe e Muay Thai. Conheça nossos planos e agende sua aula.",
+
+  keywords: [
+    "You Smile Fight",
+    "Funcional Fight",
+    "Boxe em São Paulo",
+    "Muay Thai em São Paulo",
+    "academia Vila Olímpia",
+    "treino funcional Vila Olímpia",
+  ],
 
   verification: {
     google: "Ixn_QagTNpcND-UfHJhcM20h15bbokm5fzMP63uIVK8",
@@ -32,16 +41,29 @@ export const metadata: Metadata = {
     canonical: "/",
   },
 
+  robots: {
+    index: true,
+    follow: true,
+  },
+
   openGraph: {
     title: "You Smile Fight | Funcional Fight em São Paulo",
     description:
-      "Treinos que combinam funcional, Muay Thai e Boxe. Conheça a You Smile Fight e agende sua aula.",
+      "Treinos que combinam funcional, Boxe e Muay Thai na Vila Olímpia.",
     url: "https://yousmilefight.com.br",
     siteName: "You Smile Fight",
     locale: "pt_BR",
     type: "website",
   },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "You Smile Fight | Funcional Fight em São Paulo",
+    description:
+      "Treinos que combinam funcional, Boxe e Muay Thai na Vila Olímpia.",
+  },
 };
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -54,7 +76,6 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         {children}
-
         <WhatsAppButton />
       </body>
     </html>
