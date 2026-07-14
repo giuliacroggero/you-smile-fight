@@ -13,9 +13,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "You Smile Fight",
-  description: "Treinamento Funcional Fight, Muay Thai e Boxe",
+  description:
+    "Treinos de Boxe, Muay Thai e Funcional Fight em São Paulo.",
+
+  verification: {
+    google: "Ixn_QagTNpcND-UfHJhcM20h15bbokm5fzMP63uIVK8",
+  },
 };
 
 export default function RootLayout({
