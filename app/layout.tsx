@@ -13,16 +13,35 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "You Smile Fight",
+export const metadata: Metadata = {
+  metadataBase: new URL("https://yousmilefight.com.br"),
+
+  title: {
+    default: "You Smile Fight | Funcional Fight em São Paulo",
+    template: "%s | You Smile Fight",
+  },
+
   description:
-    "Treinos de Boxe, Muay Thai e Funcional Fight em São Paulo.",
+    "Studio de Funcional Fight em São Paulo, com treinos que combinam funcional, Muay Thai e Boxe. Conheça os planos e agende sua aula.",
 
   verification: {
     google: "Ixn_QagTNpcND-UfHJhcM20h15bbokm5fzMP63uIVK8",
   },
-};
 
+  alternates: {
+    canonical: "/",
+  },
+
+  openGraph: {
+    title: "You Smile Fight | Funcional Fight em São Paulo",
+    description:
+      "Treinos que combinam funcional, Muay Thai e Boxe. Conheça a You Smile Fight e agende sua aula.",
+    url: "https://yousmilefight.com.br",
+    siteName: "You Smile Fight",
+    locale: "pt_BR",
+    type: "website",
+  },
+};
 export default function RootLayout({
   children,
 }: Readonly<{
