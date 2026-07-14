@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import date, datetime, time, timedelta
 
 from app.database import engine, Base, SessionLocal
 from app.models import User, Coach, Booking, ClassSlot
@@ -17,6 +18,8 @@ from app.schemas import (
     ClassSlotCreate,
     ClassSlotUpdate,
     ClassSlotResponse,
+    AutomaticBookingCreate,
+    AutomaticSlotResponse,
 )
 from app.auth import (
     hash_password,
@@ -46,6 +49,37 @@ def get_db():
     finally:
         db.close()
 
+def get_business_hours(selected_date: date) -> tuple[int, int]:
+    """
+    Retorna o primeiro e o último horário disponíveis para o dia.
+
+    Segunda a sexta: 06:00 até 21:00
+    Sábado: 06:00 até 16:00
+    Domingo: 06:00 até 14:00
+    """
+
+    weekday = selected_date.weekday()
+
+    if weekday <= 4:
+        return 6, 21
+
+    if weekday == 5:
+        return 6, 16
+
+    return 6, 14
+
+
+def is_valid_business_time(
+    selected_date: date,
+    selected_time: time,
+) -> bool:
+    start_hour, end_hour = get_business_hours(selected_date)
+
+    return (
+        selected_time.minute == 0
+        and selected_time.second == 0
+        and start_hour <= selected_time.hour <= end_hour
+    )
 
 @app.get("/")
 def home():

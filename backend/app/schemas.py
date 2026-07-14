@@ -1,5 +1,6 @@
-from pydantic import BaseModel, EmailStr
 import datetime
+
+from pydantic import BaseModel, EmailStr, Field
 
 
 # ==========================
@@ -62,7 +63,7 @@ class CoachResponse(BaseModel):
 
 
 # ==========================
-# Horários
+# Horários persistidos
 # ==========================
 
 class ClassSlotCreate(BaseModel):
@@ -90,13 +91,37 @@ class ClassSlotResponse(BaseModel):
 
 
 # ==========================
+# Agenda automática
+# ==========================
+
+class AutomaticSlotResponse(BaseModel):
+    slot_id: int | None = None
+    booking_id: int | None = None
+
+    coach_id: int
+    date: datetime.date
+    time: datetime.time
+
+    # available | reserved | blocked
+    status: str
+
+
+# ==========================
 # Reservas
 # ==========================
 
 class BookingCreate(BaseModel):
     slot_id: int
     booking_type: str = "individual"
-    spots: int = 1
+    spots: int = Field(default=1, ge=1, le=5)
+
+
+class AutomaticBookingCreate(BaseModel):
+    coach_id: int
+    date: datetime.date
+    time: datetime.time
+    booking_type: str = "individual"
+    spots: int = Field(default=1, ge=1, le=5)
 
 
 class BookingResponse(BaseModel):
