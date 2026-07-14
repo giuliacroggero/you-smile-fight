@@ -2,6 +2,10 @@ from pydantic import BaseModel, EmailStr
 import datetime
 
 
+# ==========================
+# Usuários
+# ==========================
+
 class UserCreate(BaseModel):
     name: str
     email: EmailStr
@@ -28,33 +32,9 @@ class TokenResponse(BaseModel):
     token_type: str
 
 
-class CoachResponse(BaseModel):
-    id: int
-    name: str
-    specialty: str
-    photo: str | None
-    active: bool
-
-    class Config:
-        from_attributes = True
-
-
-class BookingCreate(BaseModel):
-    slot_id: int
-    booking_type: str = "individual"
-    spots: int = 1
-
-
-class BookingResponse(BaseModel):
-    id: int
-    user_id: int
-    slot_id: int
-    booking_type: str
-    spots: int
-    status: str
-
-    class Config:
-        from_attributes = True
+# ==========================
+# Coaches
+# ==========================
 
 class CoachCreate(BaseModel):
     name: str
@@ -69,6 +49,21 @@ class CoachUpdate(BaseModel):
     photo: str | None = None
     active: bool | None = None
 
+
+class CoachResponse(BaseModel):
+    id: int
+    name: str
+    specialty: str
+    photo: str | None = None
+    active: bool
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================
+# Horários
+# ==========================
 
 class ClassSlotCreate(BaseModel):
     coach_id: int
@@ -89,6 +84,28 @@ class ClassSlotResponse(BaseModel):
     date: datetime.date
     time: datetime.time
     active: bool
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================
+# Reservas
+# ==========================
+
+class BookingCreate(BaseModel):
+    slot_id: int
+    booking_type: str = "individual"
+    spots: int = 1
+
+
+class BookingResponse(BaseModel):
+    id: int
+    user_id: int
+    slot_id: int | None = None
+    booking_type: str
+    spots: int
+    status: str
 
     class Config:
         from_attributes = True
