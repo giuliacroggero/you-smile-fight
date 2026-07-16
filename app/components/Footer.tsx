@@ -122,27 +122,43 @@ export default function Footer() {
       </div>
 
       {/* LINHA FINAL */}
-      <div className="mx-auto mt-10 flex max-w-6xl flex-col justify-between gap-4 border-t border-yellow-400/30 pt-6 text-xs text-gray-500 md:flex-row">
-        <p>© 2026 You Smile Fight — Todos os direitos reservados.</p>
+      {/* LINHA FINAL */}
+<div className="mx-auto mt-10 flex max-w-6xl flex-col justify-between gap-4 border-t border-yellow-400/30 pt-6 text-xs text-gray-500 md:flex-row">
+  <div>
+    <p>© 2026 You Smile Fight — Todos os direitos reservados.</p>
 
-        <div className="flex flex-wrap gap-4">
-          <a href="#" className="transition hover:text-white">
-            Política de Privacidade
-          </a>
+    <p className="mt-2">
+      Desenvolvido por{" "}
+      <a
+        href="https://www.linkedin.com/in/giulia-roggero/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="transition-colors hover:text-yellow-400"
+      >
+        Giulia Roggero
+      </a>
+    </p>
+  </div>
 
-          <span>•</span>
+  <div className="flex flex-wrap gap-4">
+    <a href="#" className="transition hover:text-white">
+      Política de Privacidade
+    </a>
 
-          <a href="#" className="transition hover:text-white">
-            Termos de Uso
-          </a>
+    <span>•</span>
 
-          <span>•</span>
+    <a href="#" className="transition hover:text-white">
+      Termos de Uso
+    </a>
 
-          <a href="#" className="transition hover:text-white">
-            Cookies
-          </a>
-        </div>
-      </div>
+    <span>•</span>
+
+    <a href="#" className="transition hover:text-white">
+      Cookies
+    </a>
+  </div>
+</div>
+      
     </footer>
   );
 }
