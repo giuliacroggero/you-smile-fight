@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 
 type Period = "todos" | "manha" | "tarde" | "noite";
 
+type SlotStatus = "available" | "reserved" | "blocked";
+
 type Coach = {
   id: number;
   name: string;
@@ -14,12 +16,21 @@ type Coach = {
   active: boolean;
 };
 
-type Slot = {
-  id: number;
+type AutomaticSlot = {
+  slot_id: number | null;
+  booking_id: number | null;
   coach_id: number;
   date: string;
   time: string;
-  active: boolean;
+  status: SlotStatus;
+};
+
+type WeekDay = {
+  index: number;
+  fullDate: string;
+  label: string;
+  day: string;
+  month: string;
 };
 
 const API_URL = "http://localhost:8000";
@@ -31,95 +42,181 @@ const periods: { id: Period; label: string }[] = [
   { id: "noite", label: "Noite" },
 ];
 
-function getWeekDays() {
+function formatDateForApi(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function getWeekDays(): WeekDay[] {
   const today = new Date();
 
   return Array.from({ length: 7 }, (_, index) => {
     const date = new Date(today);
+
+    date.setHours(12, 0, 0, 0);
     date.setDate(today.getDate() + index);
 
     return {
       index,
-      fullDate: date.toISOString().split("T")[0],
+      fullDate: formatDateForApi(date),
       label: date
-        .toLocaleDateString("pt-BR", { weekday: "short" })
+        .toLocaleDateString("pt-BR", {
+          weekday: "short",
+        })
         .replace(".", "")
         .toUpperCase(),
       day: String(date.getDate()).padStart(2, "0"),
       month: date
-        .toLocaleDateString("pt-BR", { month: "short" })
+        .toLocaleDateString("pt-BR", {
+          month: "short",
+        })
         .replace(".", "")
         .toUpperCase(),
     };
   });
 }
 
-function getPeriodByTime(time: string): Exclude<Period, "todos"> {
-  const hour = Number(time.slice(0, 2));
+function getPeriodByTime(
+  timeValue: string,
+): Exclude<Period, "todos"> {
+  const hour = Number(timeValue.slice(0, 2));
 
   if (hour < 12) return "manha";
   if (hour < 18) return "tarde";
+
   return "noite";
 }
 
-function formatTime(time: string) {
-  return time.slice(0, 5);
+function formatTime(timeValue: string) {
+  return timeValue.slice(0, 5);
+}
+
+function getSlotLabel(status: SlotStatus) {
+  if (status === "reserved") return "Reservado";
+  if (status === "blocked") return "Bloqueado";
+
+  return "Disponível";
 }
 
 export default function ReservarPage() {
   const router = useRouter();
 
+  const weekDays = useMemo(() => getWeekDays(), []);
+
   const [coaches, setCoaches] = useState<Coach[]>([]);
-  const [slots, setSlots] = useState<Slot[]>([]);
+  const [schedule, setSchedule] = useState<AutomaticSlot[]>([]);
 
   const [selectedCoach, setSelectedCoach] = useState("");
-  const [selectedPeriod, setSelectedPeriod] = useState<Period>("todos");
+  const [selectedPeriod, setSelectedPeriod] =
+    useState<Period>("todos");
   const [selectedDay, setSelectedDay] = useState(0);
-  const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
+  const [selectedSlot, setSelectedSlot] =
+    useState<AutomaticSlot | null>(null);
 
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loadingCoaches, setLoadingCoaches] = useState(true);
+  const [loadingSchedule, setLoadingSchedule] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
-  const weekDays = useMemo(() => getWeekDays(), []);
-  const selectedDate = weekDays.find((day) => day.index === selectedDay);
-  const coach = coaches.find((item) => String(item.id) === selectedCoach);
+  const selectedDate = weekDays.find(
+    (day) => day.index === selectedDay,
+  );
+
+  const selectedCoachData = coaches.find(
+    (coach) => String(coach.id) === selectedCoach,
+  );
 
   useEffect(() => {
-    async function loadData() {
+    async function loadCoaches() {
       try {
-        const [coachesResponse, slotsResponse] = await Promise.all([
-          fetch(`${API_URL}/coaches`),
-          fetch(`${API_URL}/slots`),
-        ]);
+        setMessage("");
 
-        const coachesData = await coachesResponse.json();
-        const slotsData = await slotsResponse.json();
+        const response = await fetch(`${API_URL}/coaches`);
 
-        setCoaches(coachesData);
-        setSlots(slotsData);
+        if (!response.ok) {
+          throw new Error("Não foi possível carregar os coaches.");
+        }
 
-        if (coachesData.length > 0) {
-          setSelectedCoach(String(coachesData[0].id));
+        const data: Coach[] = await response.json();
+
+        setCoaches(data);
+
+        if (data.length > 0) {
+          setSelectedCoach(String(data[0].id));
         }
       } catch {
-        setMessage("Erro ao carregar horários.");
+        setMessage("Erro ao carregar os coaches.");
       } finally {
-        setLoading(false);
+        setLoadingCoaches(false);
       }
     }
 
-    loadData();
+    loadCoaches();
   }, []);
 
-  const availableSlots = slots
-    .filter((slot) => String(slot.coach_id) === selectedCoach)
+  useEffect(() => {
+    if (!selectedCoach || weekDays.length === 0) {
+      return;
+    }
+
+    async function loadSchedule() {
+      try {
+        setLoadingSchedule(true);
+        setSelectedSlot(null);
+        setMessage("");
+
+        const params = new URLSearchParams({
+          coach_id: selectedCoach,
+          start_date: weekDays[0].fullDate,
+          days: "7",
+        });
+
+        const response = await fetch(
+          `${API_URL}/schedule?${params.toString()}`,
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.detail || "Não foi possível carregar a agenda.",
+          );
+        }
+
+        setSchedule(data);
+      } catch (error) {
+        setSchedule([]);
+
+        setMessage(
+          error instanceof Error
+            ? error.message
+            : "Erro ao carregar a agenda.",
+        );
+      } finally {
+        setLoadingSchedule(false);
+      }
+    }
+
+    loadSchedule();
+  }, [selectedCoach, weekDays]);
+
+  const slotsForSelectedDay = schedule
     .filter((slot) => slot.date === selectedDate?.fullDate)
     .filter((slot) =>
       selectedPeriod === "todos"
         ? true
-        : getPeriodByTime(slot.time) === selectedPeriod
+        : getPeriodByTime(slot.time) === selectedPeriod,
     )
-    .sort((a, b) => a.time.localeCompare(b.time));
+    .sort((firstSlot, secondSlot) =>
+      firstSlot.time.localeCompare(secondSlot.time),
+    );
+
+  const availableSlots = slotsForSelectedDay.filter(
+    (slot) => slot.status === "available",
+  );
 
   async function confirmBooking() {
     setMessage("");
@@ -132,36 +229,57 @@ export default function ReservarPage() {
     }
 
     if (!selectedSlot) {
-      setMessage("Selecione um horário.");
+      setMessage("Selecione um horário disponível.");
       return;
     }
 
-    const response = await fetch(`${API_URL}/bookings`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        slot_id: selectedSlot.id,
-        booking_type: "individual",
-        spots: 1,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      setMessage(data.detail || "Erro ao confirmar reserva.");
+    if (selectedSlot.status !== "available") {
+      setMessage("Esse horário não está disponível.");
       return;
     }
 
-    router.push("/minhas-reservas");
+    try {
+      setConfirming(true);
+
+      const response = await fetch(
+        `${API_URL}/bookings/automatic`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            coach_id: selectedSlot.coach_id,
+            date: selectedSlot.date,
+            time: selectedSlot.time,
+            booking_type: "individual",
+            spots: 1,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setMessage(
+          data.detail || "Erro ao confirmar a reserva.",
+        );
+        return;
+      }
+
+      router.push("/minhas-reservas");
+    } catch {
+      setMessage("Erro ao conectar com o servidor.");
+    } finally {
+      setConfirming(false);
+    }
   }
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-black px-5 py-8 text-white md:px-12 md:py-10">
       <div className="pointer-events-none absolute -right-40 -top-40 h-96 w-96 rounded-full bg-yellow-400/20 blur-[120px]" />
+
       <div className="pointer-events-none absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-yellow-400/10 blur-[120px]" />
 
       <section className="relative mx-auto max-w-7xl">
@@ -176,6 +294,7 @@ export default function ReservarPage() {
           <p className="text-xs font-bold uppercase tracking-[0.4em] text-yellow-400">
             Agenda
           </p>
+
           <span className="h-px w-14 bg-yellow-400" />
         </div>
 
@@ -184,11 +303,20 @@ export default function ReservarPage() {
         </h1>
 
         <p className="mt-4 max-w-2xl text-base text-zinc-400 md:text-lg">
-          Escolha o coach, o dia e veja os horários disponíveis da semana.
+          Escolha o coach, o dia e veja os horários disponíveis
+          da semana.
         </p>
 
-        {loading ? (
-          <p className="mt-10 text-zinc-400">Carregando horários...</p>
+        {loadingCoaches ? (
+          <p className="mt-10 text-zinc-400">
+            Carregando coaches...
+          </p>
+        ) : coaches.length === 0 ? (
+          <div className="mt-10 rounded-[2rem] border border-zinc-800 bg-zinc-950/50 p-6">
+            <p className="text-sm text-zinc-400">
+              Nenhum coach disponível no momento.
+            </p>
+          </div>
         ) : (
           <>
             <div className="mt-8 max-w-xl">
@@ -205,9 +333,9 @@ export default function ReservarPage() {
                 }}
                 className="h-16 w-full rounded-2xl border border-zinc-800 bg-black px-5 text-base font-semibold text-white outline-none transition focus:border-yellow-400"
               >
-                {coaches.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name} — {item.specialty}
+                {coaches.map((coach) => (
+                  <option key={coach.id} value={coach.id}>
+                    {coach.name} — {coach.specialty}
                   </option>
                 ))}
               </select>
@@ -221,14 +349,17 @@ export default function ReservarPage() {
 
                 <div className="flex flex-wrap gap-2">
                   {periods.map((period) => {
-                    const isActive = selectedPeriod === period.id;
+                    const isActive =
+                      selectedPeriod === period.id;
 
                     return (
                       <button
                         key={period.id}
+                        type="button"
                         onClick={() => {
                           setSelectedPeriod(period.id);
                           setSelectedSlot(null);
+                          setMessage("");
                         }}
                         className={`rounded-full border px-5 py-2.5 text-sm font-bold transition ${
                           isActive
@@ -245,11 +376,13 @@ export default function ReservarPage() {
 
               <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
                 {weekDays.map((day) => {
-                  const isActive = selectedDay === day.index;
+                  const isActive =
+                    selectedDay === day.index;
 
                   return (
                     <button
-                      key={day.index}
+                      key={day.fullDate}
+                      type="button"
                       onClick={() => {
                         setSelectedDay(day.index);
                         setSelectedSlot(null);
@@ -264,9 +397,11 @@ export default function ReservarPage() {
                       <span className="block text-sm font-black">
                         {day.label}
                       </span>
+
                       <strong className="mt-2 block text-4xl leading-none">
                         {day.day}
                       </strong>
+
                       <span className="mt-2 block text-xs font-bold text-zinc-400">
                         {day.month}
                       </span>
@@ -278,23 +413,40 @@ export default function ReservarPage() {
 
             <div className="mt-7">
               <h2 className="text-2xl font-black uppercase">
-                Horários disponíveis
+                Horários da agenda
               </h2>
 
               <p className="mt-2 text-sm text-zinc-400">
-                Aulas personalizadas com reserva por horário.
+                Os horários livres podem ser reservados diretamente.
               </p>
             </div>
 
-            {availableSlots.length > 0 ? (
+            {loadingSchedule ? (
+              <div className="mt-5 rounded-[2rem] border border-zinc-800 bg-zinc-950/50 p-6">
+                <p className="text-sm text-zinc-400">
+                  Carregando agenda...
+                </p>
+              </div>
+            ) : slotsForSelectedDay.length > 0 ? (
               <div className="mt-5 rounded-[2rem] border border-zinc-800 bg-zinc-950/50 p-4 backdrop-blur">
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5 xl:grid-cols-9">
-                  {availableSlots.map((slot) => {
-                    const isActive = selectedSlot?.id === slot.id;
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5 xl:grid-cols-8">
+                  {slotsForSelectedDay.map((slot) => {
+                    const slotKey = `${slot.date}-${slot.time}`;
+                    const selectedSlotKey = selectedSlot
+                      ? `${selectedSlot.date}-${selectedSlot.time}`
+                      : null;
+
+                    const isActive =
+                      selectedSlotKey === slotKey;
+
+                    const isAvailable =
+                      slot.status === "available";
 
                     return (
                       <button
-                        key={slot.id}
+                        key={slotKey}
+                        type="button"
+                        disabled={!isAvailable}
                         onClick={() => {
                           setSelectedSlot(slot);
                           setMessage("");
@@ -302,14 +454,22 @@ export default function ReservarPage() {
                         className={`rounded-2xl border p-4 text-center transition ${
                           isActive
                             ? "border-yellow-400 bg-yellow-400 text-black"
-                            : "border-yellow-400/70 bg-black text-white hover:bg-yellow-400 hover:text-black"
+                            : slot.status === "available"
+                              ? "border-yellow-400/70 bg-black text-white hover:bg-yellow-400 hover:text-black"
+                              : slot.status === "reserved"
+                                ? "cursor-not-allowed border-red-500/30 bg-red-500/10 text-zinc-500"
+                                : "cursor-not-allowed border-zinc-700 bg-zinc-900 text-zinc-600"
                         }`}
                       >
                         <div
                           className={`mx-auto mb-3 flex h-6 w-6 items-center justify-center rounded-full border text-xs ${
                             isActive
                               ? "border-black text-black"
-                              : "border-yellow-400 text-yellow-400"
+                              : slot.status === "available"
+                                ? "border-yellow-400 text-yellow-400"
+                                : slot.status === "reserved"
+                                  ? "border-red-400/50 text-red-400"
+                                  : "border-zinc-600 text-zinc-600"
                           }`}
                         >
                           ⏱
@@ -321,10 +481,16 @@ export default function ReservarPage() {
 
                         <span
                           className={`mt-2 block text-sm font-bold ${
-                            isActive ? "text-black/70" : "text-green-400"
+                            isActive
+                              ? "text-black/70"
+                              : slot.status === "available"
+                                ? "text-green-400"
+                                : slot.status === "reserved"
+                                  ? "text-red-400"
+                                  : "text-zinc-500"
                           }`}
                         >
-                          Disponível
+                          {getSlotLabel(slot.status)}
                         </span>
                       </button>
                     );
@@ -334,7 +500,8 @@ export default function ReservarPage() {
             ) : (
               <div className="mt-5 rounded-[2rem] border border-zinc-800 bg-zinc-950/50 p-6">
                 <p className="text-sm text-zinc-400">
-                  Nenhum horário disponível para esse coach neste dia/período.
+                  Nenhum horário encontrado para esse coach neste
+                  dia ou período.
                 </p>
               </div>
             )}
@@ -346,38 +513,62 @@ export default function ReservarPage() {
                     <p className="text-sm text-zinc-400">
                       Reserva selecionada
                     </p>
+
                     <p className="mt-1 text-lg font-bold">
-                      {coach?.name} • {selectedDate?.label},{" "}
-                      {selectedDate?.day} {selectedDate?.month} •{" "}
+                      {selectedCoachData?.name} •{" "}
+                      {selectedDate?.label},{" "}
+                      {selectedDate?.day}{" "}
+                      {selectedDate?.month} •{" "}
                       <span className="text-yellow-400">
                         {formatTime(selectedSlot.time)}
                       </span>
                     </p>
 
                     {message && (
-                      <p className="mt-2 text-sm text-red-400">{message}</p>
+                      <p className="mt-2 text-sm text-red-400">
+                        {message}
+                      </p>
                     )}
                   </div>
 
                   <button
+                    type="button"
                     onClick={confirmBooking}
-                    className="rounded-2xl bg-yellow-400 px-7 py-4 text-sm font-black uppercase text-black transition hover:bg-yellow-300"
+                    disabled={confirming}
+                    className="rounded-2xl bg-yellow-400 px-7 py-4 text-sm font-black uppercase text-black transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Confirmar reserva
+                    {confirming
+                      ? "Confirmando..."
+                      : "Confirmar reserva"}
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center gap-4">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-yellow-400/50 text-yellow-400">
-                    📅
+                <div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-yellow-400/50 text-yellow-400">
+                      📅
+                    </div>
+
+                    <p className="text-zinc-300">
+                      Selecione um horário disponível para continuar
+                      com sua reserva.
+                    </p>
                   </div>
 
-                  <p className="text-zinc-300">
-                    Selecione um horário para continuar com sua reserva.
-                  </p>
+                  {message && (
+                    <p className="mt-3 text-sm text-red-400">
+                      {message}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
+
+            <p className="mt-4 text-sm text-zinc-500">
+              {availableSlots.length} horário
+              {availableSlots.length === 1 ? "" : "s"} disponível
+              {availableSlots.length === 1 ? "" : "is"} neste período.
+            </p>
           </>
         )}
       </section>
